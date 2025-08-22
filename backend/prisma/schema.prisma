@@ -12,4 +12,66 @@ model User {
   email    String @unique
   password String
   role     String
+  name     String
+  createdAt DateTime @default(now())
+  
+  // Relations
+  teacherCourses Course[] @relation("TeacherCourses")
+  enrollments    Enrollment[]
+  assignments    Assignment[]
+  submissions    Submission[]
+}
+
+model Course {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  teacherId   Int
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  teacher     User @relation("TeacherCourses", fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+  assignments Assignment[]
+}
+
+model Enrollment {
+  id       Int @id @default(autoincrement())
+  userId   Int
+  courseId Int
+  enrolledAt DateTime @default(now())
+  
+  // Relations
+  user     User @relation(fields: [userId], references: [id])
+  course   Course @relation(fields: [courseId], references: [id])
+  
+  @@unique([userId, courseId])
+}
+
+model Assignment {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  dueDate     DateTime
+  courseId    Int
+  createdBy   Int
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  course      Course @relation(fields: [courseId], references: [id])
+  creator     User @relation(fields: [createdBy], references: [id])
+  submissions Submission[]
+}
+
+model Submission {
+  id           Int    @id @default(autoincrement())
+  content      String
+  grade        Float?
+  assignmentId Int
+  studentId    Int
+  submittedAt  DateTime @default(now())
+  
+  // Relations
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  student      User @relation(fields: [studentId], references: [id])
 }
